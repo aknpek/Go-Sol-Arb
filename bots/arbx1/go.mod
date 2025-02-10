@@ -1,6 +1,6 @@
-module github.com/yourusername/Go-Sol-Arb
+module github.com/aknpek/Go-Sol-Arb
 
-go 1.23
+go 1.18
 
 require (
 	github.com/gagliardetto/solana-go v1.8.4
