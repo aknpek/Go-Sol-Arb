@@ -113,7 +113,7 @@ func decodeRaydiumPool(acc *rpc.Account) (PoolReserves, error) {
 		return PoolReserves{}, fmt.Errorf("invalid pool data length")
 	}
 
-	config, exists := POOL_CONFIGS[acc.PublicKey]
+	config, exists := POOL_CONFIGS[acc.Pubkey]
 	if !exists {
 		return PoolReserves{}, fmt.Errorf("unknown pool configuration")
 	}
@@ -125,7 +125,7 @@ func decodeRaydiumPool(acc *rpc.Account) (PoolReserves, error) {
 	adjReserveB := float64(reserveB) / math.Pow10(int(config.TokenB.Decimals))
 
 	return PoolReserves{
-		Address:  acc.PublicKey, // Use PublicKey not Owner
+		Address:  acc.Pubkey,
 		ReserveA: adjReserveA,
 		ReserveB: adjReserveB,
 		Price:    adjReserveB / adjReserveA,
