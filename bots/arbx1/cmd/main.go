@@ -19,7 +19,17 @@ const (
 	POLL_INTERVAL = 10 * time.Second
 )
 
-// PREDEFINED POOLS WITH TOKEN DECIMALS
+// Add these type definitions
+type TokenConfig struct {
+	Mint     solana.PublicKey
+	Decimals uint8
+}
+
+type PoolConfig struct {
+	TokenA TokenConfig
+	TokenB TokenConfig
+}
+
 var POOL_CONFIGS = map[solana.PublicKey]PoolConfig{
 	solana.MustPublicKeyFromBase58("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2"): {
 		TokenA: TokenConfig{
@@ -41,7 +51,12 @@ var POOL_CONFIGS = map[solana.PublicKey]PoolConfig{
 			Decimals: 6,
 		},
 	},
+}
 
+var TARGET_POOLS = []solana.PublicKey{
+	solana.MustPublicKeyFromBase58("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2"),
+	solana.MustPublicKeyFromBase58("HJPjoWUrhoZzkNfRpHuieeFk9WcZWjwy6PBjZ81ngndJ"),
+}
 
 type PoolReserves struct { 
 	Address solana.PublicKey
