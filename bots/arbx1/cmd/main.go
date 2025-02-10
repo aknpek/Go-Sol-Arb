@@ -43,8 +43,6 @@ var POOL_CONFIGS = map[solana.PublicKey]PoolConfig{
 	},
 
 
-var TOKEN_DECIMALS = map[solana.PublicKey]TokenInfo{
-
 type PoolReserves struct { 
 	Address solana.PublicKey
 	ReserveA float64 // Token A (e.g. SOL)
