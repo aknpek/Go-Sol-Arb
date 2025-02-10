@@ -30,7 +30,11 @@ lscpu
 ```
 
 ## Test RPC Node Run
+
+
 - CURL command test.
+
+
 ```bash
 curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '
 {
@@ -53,13 +57,13 @@ curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '
 
 ## Installation
 
-Check if go installed;
+1. Check if go installed;
 
 ```bash
 
 ```
 
-Cloning the bot code;
+2. Cloning the bot code;
 ```bash
 # Create a projects directory in your home folder
 mkdir -p ~/projects/solana-bots
@@ -97,4 +101,13 @@ go mod tidy
 2. Build and run the bot
 ```bash
 cd bots/
+```
+
+## Possible Errors
+
+1. Connection Refused
+
+- Open in 2nd terminal
+```bash
+solana-test-validator
 ```
