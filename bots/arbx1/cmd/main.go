@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
+	"github.com/gagliardetto/solana-go/rpc/jsonrpc"
 )
 
 // CONFIGURATION
@@ -72,8 +74,7 @@ func main() {
 }
 
 // Decode Raydium pool reserves from account data
-func decodeRaydiumPool(acc rpc.AccountInfo) (PoolReserves, error) { 
-
+func decodeRaydiumPool(acc *jsonrpc.Account) (PoolReserves, error) { 
 	data := acc.Data.GetBinary()
 	if len(data) < 17 { 
 		return PoolReserves{}, fmt.Errorf("invalid pool data length")
