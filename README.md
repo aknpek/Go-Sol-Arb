@@ -63,7 +63,7 @@ curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '
 go 
 ```
 
-2. Cloning the bot code;
+2. Cloning the bot code (if not already?);
 ```bash
 # Create a projects directory in your home folder
 mkdir -p ~/projects/solana-bots
