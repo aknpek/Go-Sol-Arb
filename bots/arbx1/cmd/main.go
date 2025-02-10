@@ -107,30 +107,31 @@ func main() {
 }
 
 // Decode Raydium pool reserves from account data
-func decodeRaydiumPool(acc *rpc.Account) (PoolReserves, error) {
-	data := acc.Data.GetBinary()
-	if len(data) < 17 {
-		return PoolReserves{}, fmt.Errorf("invalid pool data length")
-	}
+func decodeRaydiumPool(acc *rpc.Account, pubKey solana.PublicKey) (PoolReserves, error) {
+    data := acc.Data.GetBinary()
+    if len(data) < 17 {
+        return PoolReserves{}, fmt.Errorf("invalid pool data length")
+    }
 
-	config, exists := POOL_CONFIGS[acc.PublicKey]
-	if !exists {
-		return PoolReserves{}, fmt.Errorf("unknown pool configuration")
-	}
+    config, exists := POOL_CONFIGS[pubKey]
+    if !exists {
+        return PoolReserves{}, fmt.Errorf("unknown pool configuration")
+    }
 
-	reserveA := binary.LittleEndian.Uint64(data[1:9])
-	reserveB := binary.LittleEndian.Uint64(data[9:17])
+    reserveA := binary.LittleEndian.Uint64(data[1:9])
+    reserveB := binary.LittleEndian.Uint64(data[9:17])
 
-	adjReserveA := float64(reserveA) / math.Pow10(int(config.TokenA.Decimals))
-	adjReserveB := float64(reserveB) / math.Pow10(int(config.TokenB.Decimals))
+    adjReserveA := float64(reserveA) / math.Pow10(int(config.TokenA.Decimals))
+    adjReserveB := float64(reserveB) / math.Pow10(int(config.TokenB.Decimals))
 
-	return PoolReserves{
-		Address:  acc.PublicKey,
-		ReserveA: adjReserveA,
-		ReserveB: adjReserveB,
-		Price:    adjReserveB / adjReserveA,
-	}, nil
+    return PoolReserves{
+        Address:  pubKey,
+        ReserveA: adjReserveA,
+        ReserveB: adjReserveB,
+        Price:    adjReserveB / adjReserveA,
+    }, nil
 }
+
 
 
 // Simple arbitrage check between two pools
