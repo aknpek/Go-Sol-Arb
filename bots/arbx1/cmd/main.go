@@ -79,21 +79,19 @@ func main() {
 			continue
 		}
 
-		for i, account := range accounts.Value { 	
+		for i, account := range accounts.Value {
 			if account == nil { // POOL account not found.
 				continue
 			}
-
-			reserves, err := decodeRaydiumPool(account)
-
-			if err != nil { 
+		
+			reserves, err := decodeRaydiumPool(account, TARGET_POOLS[i])
+			if err != nil {
 				log.Printf("Error decoding pool: %v", err)
 				continue
 			}
-			
+		
 			pools = append(pools, reserves)
 			log.Printf("Pool %s: 1 TokenA = %.4f TokenB", TARGET_POOLS[i].String(), reserves.Price)
-
 		}
 
 		// Check for arbitrage opportunities between two pools
