@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"math"
 	"time"
 
 	"github.com/gagliardetto/solana-go"
@@ -18,11 +19,31 @@ const (
 	POLL_INTERVAL = 10 * time.Second
 )
 
-// PREDEFINED POOLS TO MONITOR (E.G SOL/USDC, BONK/USDC, ...)
-var TARGET_POOLS = []solana.PublicKey{
-	solana.MustPublicKeyFromBase58("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2"), // SOL/USDC
-	solana.MustPublicKeyFromBase58("HJPjoWUrhoZzkNfRpHuieeFk9WcZWjwy6PBjZ81ngndJ"),  // BONK/USDC
-}
+// PREDEFINED POOLS WITH TOKEN DECIMALS
+var POOL_CONFIGS = map[solana.PublicKey]PoolConfig{
+	solana.MustPublicKeyFromBase58("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2"): {
+		TokenA: TokenConfig{
+			Mint:     solana.MustPublicKeyFromBase58("So11111111111111111111111111111111111111112"), // SOL
+			Decimals: 9,
+		},
+		TokenB: TokenConfig{
+			Mint:     solana.MustPublicKeyFromBase58("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"), // USDC
+			Decimals: 6,
+		},
+	},
+	solana.MustPublicKeyFromBase58("HJPjoWUrhoZzkNfRpHuieeFk9WcZWjwy6PBjZ81ngndJ"): {
+		TokenA: TokenConfig{
+			Mint:     solana.MustPublicKeyFromBase58("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"), // BONK
+			Decimals: 5,
+		},
+		TokenB: TokenConfig{
+			Mint:     solana.MustPublicKeyFromBase58("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"), // USDC
+			Decimals: 6,
+		},
+	},
+
+
+var TOKEN_DECIMALS = map[solana.PublicKey]TokenInfo{
 
 type PoolReserves struct { 
 	Address solana.PublicKey
@@ -73,41 +94,43 @@ func main() {
 }
 
 // Decode Raydium pool reserves from account data
-func decodeRaydiumPool(acc *rpc.Account) (PoolReserves, error) { 
+func decodeRaydiumPool(acc *rpc.Account) (PoolReserves, error) {
 	data := acc.Data.GetBinary()
-	if len(data) < 17 { 
+	if len(data) < 17 {
 		return PoolReserves{}, fmt.Errorf("invalid pool data length")
 	}
 
-	// Convert bytes to uint64 using binary.LittleEndian
+	config, exists := POOL_CONFIGS[acc.PublicKey]
+	if !exists {
+		return PoolReserves{}, fmt.Errorf("unknown pool configuration")
+	}
+
 	reserveA := binary.LittleEndian.Uint64(data[1:9])
 	reserveB := binary.LittleEndian.Uint64(data[9:17])
 
-	// Adjust for token decimals (e.g. SOL=9, USDC=6)
-	adjReserveA := float64(reserveA) / 1e9
-	adjReserveB := float64(reserveB) / 1e6
+	adjReserveA := float64(reserveA) / math.Pow10(int(config.TokenA.Decimals))
+	adjReserveB := float64(reserveB) / math.Pow10(int(config.TokenB.Decimals))
 
 	return PoolReserves{
-		Address: acc.Owner,
+		Address:  acc.PublicKey, // Use PublicKey not Owner
 		ReserveA: adjReserveA,
 		ReserveB: adjReserveB,
-		Price: adjReserveB / adjReserveA,
+		Price:    adjReserveB / adjReserveA,
 	}, nil
 }
 
 
 // Simple arbitrage check between two pools
-func checkArbitrage(pool1, pool2 PoolReserves) { 
-	spread := abs(pool1.Price - pool2.Price)
-
-	if spread > 0.001 { // .1% threshold
-		log.Printf("ARBITRAGE DETECTED: %.4f vs %.4f (%.2f%%)", pool1.Price, pool2.Price, spread * 100)
+func checkArbitrage(pool1, pool2 PoolReserves) {
+	spread := math.Abs(pool1.Price - pool2.Price)
+	if spread > 0.001 {
+		config1 := POOL_CONFIGS[pool1.Address]
+		config2 := POOL_CONFIGS[pool2.Address]
+		
+		log.Printf("ARBITRAGE DETECTED: %s (%.4f) vs %s (%.4f) [%.2f%%]",
+			config1.TokenA.Mint.String(), pool1.Price,
+			config2.TokenA.Mint.String(), pool2.Price,
+			spread*100,
+		)
 	}
-}
-
-func abs(x float64) float64 { 
-	if x < 0 { 
-		return -x
-	}
-	return x
 }
