@@ -35,7 +35,7 @@ func main() {
 	ctx := context.Background()
 
 	for { 
-		// Fetch and decade all target pools
+		// Fetch and decode all target pools
 		pools := make([]PoolReserves, 0)
 		accounts, err := client.GetMultipleAccounts(ctx, TARGET_POOLS...)
 		if err != nil { 
@@ -44,12 +44,12 @@ func main() {
 			continue
 		}
 
-		for _, account := range accounts.Value { 	
+		for i, account := range accounts.Value { 	
 			if account == nil { // POOL account not found.
 				continue
 			}
 
-			reserves, err := decodeRaydiumPool(*acc)
+			reserves, err := decodeRaydiumPool(account)
 
 			if err != nil { 
 				log.Printf("Error decoding pool: %v", err)
@@ -72,28 +72,26 @@ func main() {
 }
 
 // Decode Raydium pool reserves from account data
-func decodeRaydiumPool(acc rpc.Account) (PoolReserves, error) { 
+func decodeRaydiumPool(acc rpc.AccountInfo) (PoolReserves, error) { 
 
 	data := acc.Data.GetBinary()
 	if len(data) < 17 { 
 		return PoolReserves{}, fmt.Errorf("invalid pool data length")
 	}
 
-	// Reserve A (u64 at offset 1-8)
-	reserveA := solana.Uint64FromBytes(data[1:9])
-
-	// Reserve B (u64 at offset 9-17)
-	reserveB := solana.Uint64FromBytes(data[9:17])
+	// Convert bytes to uint64 using binary.LittleEndian
+	reserveA := binary.LittleEndian.Uint64(data[1:9])
+	reserveB := binary.LittleEndian.Uint64(data[9:17])
 
 	// Adjust for token decimals (e.g. SOL=9, USDC=6)
-	adjReserve := float64(reserveA) / 1e9
+	adjReserveA := float64(reserveA) / 1e9
 	adjReserveB := float64(reserveB) / 1e6
 
 	return PoolReserves{
-		Address: acc.PublicKey,
-		ReserveA: adjReserve,
+		Address: acc.Owner,
+		ReserveA: adjReserveA,
 		ReserveB: adjReserveB,
-		Price: adjReserveB / adjReserve,
+		Price: adjReserveB / adjReserveA,
 	}, nil
 }
 

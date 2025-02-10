@@ -52,3 +52,49 @@ curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '
 - Solana CLI tools
 
 ## Installation
+
+Check if go installed;
+
+```bash
+
+```
+
+Cloning the bot code;
+```bash
+# Create a projects directory in your home folder
+mkdir -p ~/projects/solana-bots
+
+# Move into that directory
+cd ~/projects/solana-bots
+
+# Clone your repository here
+git clone https://github.com/aknpek/Go-Sol-Arb.git
+```
+
+## Your directory structure will look like:
+/home/ubuntu/
+└── projects/
+    └── solana-bots/
+        └── your-repo-name/
+            ├── bots/
+            │   └── arbx1/
+            │       ├── cmd/
+            │       │   └── main.go
+            │       ├── go.mod
+            │       ├── go.sum
+            │       └── README.md
+            └── .gitignore
+
+
+
+## How to run?
+
+1. Install the Bot dependencies
+```bash
+go mod tidy
+```
+
+2. Build and run the bot
+```bash
+cd bots/
+```
