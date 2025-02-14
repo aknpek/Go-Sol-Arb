@@ -202,7 +202,7 @@ sudo /home/sol/bin/validator.sh
 ✅ Enable 32GB swap space to avoid crashes (sudo fallocate -l 32G /swapfile). \
 ✅ Remove --enable-rpc-transaction-history from validator.sh to save RAM.
 
-🔹 Explanation of New Limits
+🔹 Explanation of New Limits \
 ✅ MemoryMax=220G → If Solana exceeds 220GB RAM, it will be killed to prevent system crashes. \
 ✅ MemoryHigh=180G → Triggers memory cleanup when usage crosses 180GB. \
 ✅ CPUQuota=80% → Limits validator to 80% CPU usage, avoiding system overload. \
