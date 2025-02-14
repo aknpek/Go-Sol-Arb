@@ -181,13 +181,13 @@ sudo /home/sol/bin/validator.sh
 
 - It can be started from the binary or validator.sh
 
-    ✅ Starts the validator with Solana's default settings.
-    ❌ Might not include all optimizations and custom configurations.
-    ❌ Requires manual input of flags each time you start it.
+✅ Starts the validator with Solana's default settings. \
+❌ Might not include all optimizations and custom configurations. \
+❌ Requires manual input of flags each time you start it. 
 
 - Manually starting the bash script
-✅ Uses all your custom configurations (like ledger location, RPC settings, entry points).
-✅ Ensures every startup is consistent with the same parameters.
+✅ Uses all your custom configurations (like ledger location, RPC settings, entry points). \
+✅ Ensures every startup is consistent with the same parameters. \
 ✅ Can be automated using systemd to restart on failures.
 
 #### Should You Always Use validator.sh?
@@ -197,16 +197,16 @@ sudo /home/sol/bin/validator.sh
 
 
 ### RPC Reco
-✅ One important fact that rotating the log files that will not overload the disk space.
-✅ Limit memory usage in systemd (MemoryMax=220G, CPUQuota=80%).
-✅ Enable log rotation to prevent logs from filling disk.
-✅ Enable 32GB swap space to avoid crashes (sudo fallocate -l 32G /swapfile).
+✅ One important fact that rotating the log files that will not overload the disk space. \
+✅ Limit memory usage in systemd (MemoryMax=220G, CPUQuota=80%). \
+✅ Enable log rotation to prevent logs from filling disk. \
+✅ Enable 32GB swap space to avoid crashes (sudo fallocate -l 32G /swapfile). \
 ✅ Remove --enable-rpc-transaction-history from validator.sh to save RAM.
 
 🔹 Explanation of New Limits
-✅ MemoryMax=220G → If Solana exceeds 220GB RAM, it will be killed to prevent system crashes.
-✅ MemoryHigh=180G → Triggers memory cleanup when usage crosses 180GB.
-✅ CPUQuota=80% → Limits validator to 80% CPU usage, avoiding system overload.
+✅ MemoryMax=220G → If Solana exceeds 220GB RAM, it will be killed to prevent system crashes. \
+✅ MemoryHigh=180G → Triggers memory cleanup when usage crosses 180GB. \
+✅ CPUQuota=80% → Limits validator to 80% CPU usage, avoiding system overload. \
 ✅ IOSchedulingClass=2 → Optimizes disk access, reducing latency issues.
 
 
