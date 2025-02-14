@@ -47,6 +47,17 @@ curl http://localhost:8899 -X POST -H "Content-Type: application/json" -d '
 
 # RPC Running Validator Settings: 
 
+1. Install Solana
+```bash
+sh -c "$(curl -sSfL https://release.solana.com/v1.17.16/install)"
+```
+2. Add Solana to Your Path
+
+```bash
+export PATH="/home/ubuntu/.local/share/solana/install/active_release/bin:$PATH"
+```
+
+
 ### 1. System Service File
 - Open the Validator service
 ```bash
@@ -226,6 +237,7 @@ netstat -tulnp | grep 8899
 sudo systemctl status solana-validator
 ```
 
+## Re-Run RPC
 2. If it is not active, enable it.
 ```bash
 sudo systemctl daemon-reload
@@ -367,6 +379,10 @@ ls -l /home/sol/bin/validator.sh  # Check script permissions
 # Fix ownership and permissions for the sol user
 sudo chown -R sol:sol /home/sol  # Ensure sol owns its home directory
 sudo chmod 755 /home/sol  # Allow directory traversal
+```
+
+### Make Executable Validator.sh
+```bash
 sudo chmod +x /home/sol/bin/validator.sh  # Make the script executable
 ```
 
@@ -376,3 +392,4 @@ sudo chmod +x /home/sol/bin/validator.sh  # Make the script executable
 ```bash
 sudo -u sol ln -sf /home/sol/.local/share/solana/install/releases/2.1.5/solana-release /home/sol/.local/share/solana/install/active_release
 ```
+
