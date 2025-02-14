@@ -190,8 +190,8 @@ sudo /home/sol/bin/validator.sh
 ✅ Can be automated using systemd to restart on failures.
 
 #### Should You Always Use validator.sh?
-🔹 YES, if you want full control over your setup and better performance.
-🔹 If you run it manually (binary-only), you may miss important configurations.
+🔹 YES, if you want full control over your setup and better performance. \
+🔹 If you run it manually (binary-only), you may miss important configurations. \
 🔹 If you restart the server, a systemd-managed validator.sh will ensure auto-restart. 
 
 
