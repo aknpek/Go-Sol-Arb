@@ -179,13 +179,12 @@ exec /home/sol/.local/share/solana/install/releases/2.1.5/solana-release/bin/aga
 sudo /home/sol/bin/validator.sh
 ```
 
-- It can be started from the binary or validator.sh
-
+- It can be started from the binary or validator.sh \
 ✅ Starts the validator with Solana's default settings. \
 ❌ Might not include all optimizations and custom configurations. \
 ❌ Requires manual input of flags each time you start it. 
 
-- Manually starting the bash script
+- Manually starting the bash script \
 ✅ Uses all your custom configurations (like ledger location, RPC settings, entry points). \
 ✅ Ensures every startup is consistent with the same parameters. \
 ✅ Can be automated using systemd to restart on failures.
