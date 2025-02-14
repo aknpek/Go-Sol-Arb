@@ -256,6 +256,28 @@ journalctl -u solana-validator | less
 sudo journalctl -u solana-validator -f --since "2m ago"
 ```
 
+- Monitor the Current CPU processes
+
+```bash
+watch -n 1 "cat /proc/cpuinfo | grep 'MHz'"
+```
+
+- Check Current CPU machine setup
+
+```bash
+lscpu
+```
+
+- Lock CPU at Max Turbo Boost 
+
+```bash
+sudo cpupower frequency-set -g performance
+
+```
+
+- Hyper Threading -> For better performance 
+
+
 ## RPC Node Usages
 ### Check the Storages
 - Check the file storages
@@ -393,3 +415,82 @@ sudo chmod +x /home/sol/bin/validator.sh  # Make the script executable
 sudo -u sol ln -sf /home/sol/.local/share/solana/install/releases/2.1.5/solana-release /home/sol/.local/share/solana/install/active_release
 ```
 
+## Running Multiple RPC Nodes;
+1. Do not duplicate the key-value pair.json.
+2. Grep the Logs of the "Errors" or "Warnings" 
+
+```bash
+sudo grep -i "error\|failed\|warning" /home/sol/solana-rpc-mainnet.log
+```
+
+
+## Increase the Performance of the CPUs
+1. Install CPU Power Apt-Get
+```bash
+sudo apt-get install linux-tools-common linux-tools-generic
+```
+2. Set all the CPUs to Performance Mode
+```bash
+sudo cpupower frequency-set -g performance
+```
+
+3. Increase the Minimum Frequency of the GHZ
+
+```bash
+sudo cpupower frequency-set --min 3.5GHz
+```
+
+```bash
+sudo apt-get install linux-tools-common linux-tools-generic
+```
+
+
+```bash
+watch -n 1 "cat /proc/cpuinfo | grep 'MHz'"
+```
+
+
+## Temperature of CPU
+
+1. Install the sensors first
+```bash
+sudo apt-get install lm-sensors
+```
+
+2. Detect Sensors
+
+```bash
+# Detect sensors
+sudo sensors-detect
+
+```
+
+3. View Temperatures
+
+```bash
+# View temperatures
+sensors
+```
+
+## Internet Speed
+
+```bash
+sudo apt-get install speedtest-cli
+```
+
+## See all the Network Buffer Settings
+- To check the all buffer sizes 
+
+```bash
+sudo sysctl -a | grep -E "rmem|wmem|backlog|tcp"
+```
+
+- Network Optimization Settings
+
+2. 
+```bash
+sudo sysctl -w net.core.netdev_max_backlog=300000  # 1. How many packets can queue up before processing -> Default 1000 (for high traffic spikes)
+sudo sysctl -w net.ipv4.tcp_max_syn_backlog=8192  # 2. Handling more incoming connections
+sudo sysctl -w net.ipv4.tcp_rmem='4096 131072 16777216'  # 3. TCP receive buffer sizes 
+sudo sysctl -w net.ipv4.tcp_wmem='4096 16384 16777216'  # 4. TCP send buffer sizes
+```
