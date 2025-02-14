@@ -494,3 +494,14 @@ sudo sysctl -w net.ipv4.tcp_max_syn_backlog=8192  # 2. Handling more incoming co
 sudo sysctl -w net.ipv4.tcp_rmem='4096 131072 16777216'  # 3. TCP receive buffer sizes 
 sudo sysctl -w net.ipv4.tcp_wmem='4096 16384 16777216'  # 4. TCP send buffer sizes
 ```
+
+## Monitor Bandwidth Usage
+
+```bash
+sudo apt install iftop
+```
+
+
+```bash
+
+```
