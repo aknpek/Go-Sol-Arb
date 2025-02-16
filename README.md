@@ -71,6 +71,8 @@ No, unless your bot specifically requires historical transaction data or obscure
 - getAccountInfo
 - getSlot
 
+<details>
+<summary>Service Details</summary>
 
 ```ini
 [Unit]
@@ -101,6 +103,27 @@ IOSchedulingClass=2  # Improves disk I/O priority
 WantedBy=multi-user.target
 ```
 
+- machine r6a.8xlarge
+```
+[Unit]
+Description=Solana Validator
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=1
+User=sol
+LimitNOFILE=1000000
+LogRateLimitIntervalSec=0
+Environment="PATH=/bin:/usr/bin:/home/sol/.local/share/solana/install/active_release/bin"
+ExecStart=/home/sol/bin/validator.sh
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ### 2. Bash Script; 
 
 **Where is the RPC Setup Located**
@@ -117,7 +140,6 @@ sudo nano /home/sol/bin/validator.sh
 <details>
 <summary>Bash Script Details Here</summary>
 
-
 **Updated Version v0.0.1**
 ```validator.sh
 #!/bin/bash
@@ -127,6 +149,14 @@ exec /home/sol/.local/share/solana/install/releases/2.1.5/solana-release/bin/aga
     --known-validator GdnSyH3YtwcxFvQrVVJMm1JhTS4QVX7MFsX56uJLUfiZ \
     --known-validator DE1bawNcRJB9rVm3buyMVfr8mBEoyyu73NBovf2oXJsJ \
     --known-validator CakcnaRDHka2gXyfbEd2d3xsvkJkqsLw2akB3zsN1D2S \
+    --known-validator CTdmmDvnxaLLXeN5PBGg7Cb2CXgaMPpk3ndMLzrSLQiS \
+    --known-validator HhwM6xxXjhWuyx2njkt5rFRsnQ8oKWxKnsUPPcr9V7BU \
+    --known-validator C1HtCqAYkVAxQD48wzZnUwp6v6YXacW3mLatPLBU5pRs \
+    --known-validator 91hLRqfYtNXQrX28eKMPZCMprZmj7o4DdwbRv5d29fiX \
+    --known-validator 2wXz4Rfh4AUyzmze3cCccbwKAfCa81LJ2poisQcW5TRX \
+    --known-validator D59xx4Gaay9QMfVeyKpYkmnPQ3dW5L5Y6aNs2jvLNz6H \
+    --known-validator 6CaxVyX35CLXVxbDUxoYK214Q4ZPBtAD2LJQroVLxa7W \
+    --known-validator 9sCTbAg25g2Wz8WUKtfjCNB9F9sfKwAutLfLvwEx7G5N \
     --only-known-rpc \
     --full-rpc-api \
     --no-voting \
@@ -144,13 +174,44 @@ exec /home/sol/.local/share/solana/install/releases/2.1.5/solana-release/bin/aga
     --entrypoint entrypoint5.mainnet-beta.solana.com:8001 \
     --expected-genesis-hash 5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d \
     --wal-recovery-mode skip_any_corrupted_record \
-    --limit-ledger-size \
     --enable-rpc-transaction-history \
-    --enable-cpi-and-log-storage
+    --enable-cpi-and-log-storage \
+    --accounts-db-cache-limit-mb 8192 \
+    --accounts-index-memory-limit-mb 16384 \
+    --rpc-send-default-max-retries 30 \
+    --rpc-send-service-max-retries 30 \
+    --rpc-send-retry-ms 2000 \
+    --limit-ledger-size 100000000 \
+    --no-os-network-limits-test \
+    --gossip-validators-shuffle-interval-ms 30000 \
+    --gossip-validators-active-timeout-ms 60000 \
+    --no-untrusted-rpc \
+    --rpc-threads 16 \
+    --tpu-disable-qos \
+    --snapshot-interval-slots 500 \
+    --no-rocksdb-compaction \
+    --maximum-local-snapshot-age 500 \
+    --no-incremental-snapshots
 ```
 
-**Updated Version v0.0.2**
+## Follow Logs Real Time
+```
+sudo journalctl -u solana-validator -f
+```
+### Out of Memory 
 
+Check
+```bash
+journalctl -k | grep -i "out of memory"
+```
+
+Check the Memory Usage
+```bash
+top -p $(pgrep agave-validator)
+```
+
+
+**Updated Version v0.0.2**
 ```bash
 exec /home/sol/.local/share/solana/install/releases/2.1.5/solana-release/bin/agave-validator \
     --identity /home/sol/validator-keypair.json \
@@ -180,6 +241,73 @@ exec /home/sol/.local/share/solana/install/releases/2.1.5/solana-release/bin/aga
     --enable-cpi-and-log-storage \
     --accounts-db-cache-limit-mb=8192 \
     --accounts-index-memory-limit-mb=16384
+```
+
+**Updated Version 0.0.3**
+
+```bash
+#!/bin/bash
+exec /home/sol/.local/share/solana/install/releases/2.1.13/solana-release/bin/agave-validator \
+    --identity /home/sol/validator-keypair.json \
+    --known-validator 7Np41oeYqPefeNQEHSv1UDhYrehxin3NStELsSKCT4K2 \
+    --known-validator GdnSyH3YtwcxFvQrVVJMm1JhTS4QVX7MFsX56uJLUfiZ \
+    --known-validator DE1bawNcRJB9rVm3buyMVfr8mBEoyyu73NBovf2oXJsJ \
+    --known-validator CakcnaRDHka2gXyfbEd2d3xsvkJkqsLw2akB3zsN1D2S \
+    --only-known-rpc \
+    --full-rpc-api \
+    --no-voting \
+    --ledger /mnt/ledger \
+    --accounts /mnt/accounts \
+    --log /home/sol/solana-rpc-mainnet.log \
+    --rpc-port 8899 \
+    --rpc-bind-address 0.0.0.0 \
+    --private-rpc \
+    --dynamic-port-range 8000-8020 \
+    --entrypoint entrypoint.mainnet-beta.solana.com:8001 \
+    --entrypoint entrypoint2.mainnet-beta.solana.com:8001 \
+    --entrypoint entrypoint3.mainnet-beta.solana.com:8001 \
+    --entrypoint entrypoint4.mainnet-beta.solana.com:8001 \
+    --entrypoint entrypoint5.mainnet-beta.solana.com:8001 \
+    --expected-genesis-hash 5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d \
+    --limit-ledger-size \
+    --wal-recovery-mode skip_any_corrupted_record \
+    --enable-rpc-transaction-history \
+    --enable-cpi-and-log-storage 
+```
+
+**Updated Version v0.0.4**
+
+```bash
+  GNU nano 7.2                                                   /home/sol/bin/validator.sh                                                            
+#!/bin/bash
+exec /home/sol/.local/share/solana/install/releases/2.1.13/solana-release/bin/agave-validator \
+    --identity /home/sol/validator-keypair.json \
+    --known-validator 7Np41oeYqPefeNQEHSv1UDhYrehxin3NStELsSKCT4K2 \
+    --known-validator GdnSyH3YtwcxFvQrVVJMm1JhTS4QVX7MFsX56uJLUfiZ \
+    --known-validator DE1bawNcRJB9rVm3buyMVfr8mBEoyyu73NBovf2oXJsJ \
+    --known-validator CakcnaRDHka2gXyfbEd2d3xsvkJkqsLw2akB3zsN1D2S \
+    --only-known-rpc \
+    --full-rpc-api \
+    --no-voting \
+    --ledger /mnt/ledger \
+    --accounts /mnt/accounts \
+    --log /home/sol/solana-rpc-mainnet.log \
+    --rpc-port 8899 \
+    --rpc-bind-address 0.0.0.0 \
+    --private-rpc \
+    --dynamic-port-range 8000-8020 \
+    --entrypoint entrypoint.mainnet-beta.solana.com:8001 \
+    --entrypoint entrypoint2.mainnet-beta.solana.com:8001 \
+    --entrypoint entrypoint3.mainnet-beta.solana.com:8001 \
+    --entrypoint entrypoint4.mainnet-beta.solana.com:8001 \
+    --entrypoint entrypoint5.mainnet-beta.solana.com:8001 \
+    --expected-genesis-hash 5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d \
+    --limit-ledger-size \
+    --wal-recovery-mode skip_any_corrupted_record \
+    --enable-rpc-transaction-history \
+    --enable-cpi-and-log-storage \
+    --gossip-port 0
+
 ```
 
 </details>
@@ -228,6 +356,12 @@ sudo tail -f /home/sol/solana-rpc-mainnet.log
 - After Slot re-building is done, RPC should start
 ```bash
 netstat -tulnp | grep 8899
+``` 
+
+## Disk Queue Length 
+
+```bash
+watch -n 1 'cat /sys/block/nvme3n1/stat | awk "{print \$11}"'
 ```
 
 ### Check Run Status
@@ -310,7 +444,9 @@ free -h
 ## How to Check Error Logs of the Validator:
 
 ```bash
-sudo tail -n 1000 /home/sol/solana-rpc-mainnet.log | grep -i "error\|fatal\|panic"
+sudo tail -n 1000 /home/sol/solana-rpc-mainnet.log | grep -i "error\|fatal\|panic"  # Read
+sudo tail -n 1000 /home/sol/solana-rpc-mainnet.log | grep -i "buffer\|timeout\|failed"  # Read
+sudo tail -f /home/sol/solana-rpc-mainnet.log | grep -i "error" # Real 
 ```
 ### Can I limit the Slots Downloaded? 
 - Run a minimal validator in --limit-ledger-size mode. This only prunes old blocks after you’ve verified them, but you can’t skip verifying them in the first place.
@@ -330,13 +466,40 @@ sol/validator-keypair.json
 - (512gb machine) Since you have abundant memory, you can keep the net.core.rmem_max, net.core.wmem_max, etc. set high. This helps prevent packet drops under heavy network 
 load.
 
+
+- Print the UDP RMEM and WMEM buffers
+```bash
+sudo sysctl -a | grep -E "rmem|wmem|udp"
+```
+
 ```bash
 # Set 1GB buffers (maximum supported)
 sudo sysctl -w net.core.rmem_max=1073741824
 sudo sysctl -w net.core.rmem_default=1073741824
 sudo sysctl -w net.core.wmem_max=1073741824
 sudo sysctl -w net.core.wmem_default=1073741824
+```
 
+RPC Workload:
+- Large transaction batches
+- Multiple concurrent clients
+- Heavy websocket connections
+- Account data transfers
+
+Memory Available: 512GB RAM
+✅ 1GB buffer = 0.2% of total RAM
+tcp_rmem/wmem format: 'min default max'
+
+'4096 87380 1073741824'
+   │    │        └─ Max: 1GB (Good for RPC)
+   │    └─ Default: 85KB
+   └─ Min: 4KB
+
+Your Server:
+- 512GB RAM
+- High bandwidth network
+- Multiple clients
+```bash
 # Set TCP specific buffers
 sudo sysctl -w net.ipv4.tcp_rmem='4096 87380 1073741824'
 sudo sysctl -w net.ipv4.tcp_wmem='4096 87380 1073741824'
@@ -503,5 +666,130 @@ sudo apt install iftop
 
 
 ```bash
+sudo apt install iftop
+```
+
+**Monitor Per-process network usage**
+
+- ENP is related 
+```bash
+sudo nethogs enp125s0 
+```
+
+## Network Processing 
+
+Incoming Packets → Network Buffer → Processing
+     (Fast)           (Buffer)        (Slower)
+
+
+### Install netstats
+
+```bash
+sudo apt-get install net-tools
+```
+
+Cause could be:
+1. CPU: Not processing packets fast enough
+2. Memory: Buffer size too small
+3. Disk I/O: Slow writing to ledger/accounts
+
+### Install the sysstat
 
 ```
+sudo apt-get install sysstat
+```
+
+
+- Check the buffer errors
+```bash
+watch -n 1 'netstat -s | grep -i "buffer"'
+```
+
+
+```bash
+watch -n 1 'netstat -s | grep -i "receive buffer errors\|dropped"'
+```
+
+
+- Increase the 20.51% means -> CPUs are idle wiaitn for disk 
+- Disk is bottlenecking performance
+- Read operations are too slow
+- Increase the read ahead by pre-fetching data into the cache
+
+```bash
+sudo blockdev --setra 16384 /dev/nvme3n1
+```
+
+```bash
+sudo apt-get install iotop
+```
+
+
+
+```
+iostat -x 1
+```
+
+- 
+```bash
+watch -n 1 'iostat -x'
+```
+
+## Get the instance type
+
+- Get the instance type
+
+```bash
+curl http://169.254.169.254/latest/meta-data/instance-type
+```
+
+- Get the specific disk volume id
+```bash
+sudo nvme id-ctrl /dev/nvme3n1 | grep vol
+```
+
+## Ledger Related info
+
+```bash
+du -sh /mnt/ledger/*
+```
+
+
+## Increase the File System on Increased Storage Capability 
+
+1. Increase the EC2 EBS Volume in terms of GB and IOPS
+
+2. (not needed) but check if volume directly formatted (no partition) 
+
+```bash
+lsblk /dev/nvme1n1
+```
+
+3. Check file system type
+
+4. if Directly formatted (likely case) skip partitioning and directly re-size file system
+```bash
+sudo resize2fs /dev/nvme1n1
+```
+- No partition table needed
+- Some EBS volumes are formatted directly
+- Can resize file system directly 
+
+
+## UDP buffer size 
+
+Current:
+udp_rmem_min = 4096 (4KB) ❌ Too small!
+
+Recommended:
+net.ipv4.udp_rmem_min = 16777216    # 16MB
+net.core.rmem_max = 134217728        # 128MB
+net.core.rmem_default = 134217728    # 128MB
+
+
+# Set each value individually
+sudo sysctl -w net.core.rmem_max=134217728
+sudo sysctl -w net.core.wmem_max=134217728
+sudo sysctl -w net.core.rmem_default=134217728
+sudo sysctl -w net.ipv4.udp_rmem_min=16777216
+
